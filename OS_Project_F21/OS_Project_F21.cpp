@@ -2,11 +2,83 @@
 //
 
 #include <iostream>
+#include <vector>
+#include <queue>
 using namespace std;
+
+int vectorSearch(vector<int> vec, int key)
+{
+    vector<int>::iterator iterator;
+    iterator = find(vec.begin(), vec.end(), key);
+    if (iterator != vec.end())
+    {
+        return iterator - vec.begin();
+    }
+    else
+        return -1;
+}
+
+void FIFO(vector<int> refString, int frameSize)
+{
+    vector<int>frames;
+    queue<int>elementsOrder;
+    int pageFaults = 0;
+    int hits = 0;
+
+    for (int i = 0; i < refString.size(); i++)
+    {
+        cout << refString[i] << "\t";
+        // Page fault
+        if (vectorSearch(frames, refString[i]) == -1)
+        {
+            pageFaults++;
+            for (int j = 0; j < frames.size(); j++)
+                cout << frames[j] << " ";
+
+            // Frames are full
+            if (frames.size() == frameSize)
+            {
+                int toPop = elementsOrder.front();
+                frames[vectorSearch(frames, toPop)] = refString[i];
+                elementsOrder.pop();
+                elementsOrder.push(refString[i]);
+            }
+            else
+            {
+                frames.push_back(refString[i]);
+                elementsOrder.push(refString[i]);
+            }
+        }
+        else
+        {
+            hits++;
+        }
+        cout << endl;
+    }
+
+    cout << "Page faults = " << pageFaults << endl;
+}
+
+
 
 int main()
 {
-    cout << "Testing my commit";
+    vector<int> refString;
+    int elementInput;
+    int frameSize;
+
+    cout << "Input the reference string (stop = -1): \n";
+    while (true){
+        cin >> elementInput;
+        if (elementInput == -1)
+            break;
+        refString.push_back(elementInput);
+    }
+
+    cout << "\nEnter the frame size: ";
+    cin >> frameSize;
+
+    FIFO(refString, frameSize);
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
