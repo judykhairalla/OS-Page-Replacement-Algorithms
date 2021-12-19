@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <queue>
+#include <unordered_map>
 using namespace std;
 
 int vectorSearch(vector<int> vec, int key)
@@ -59,7 +60,44 @@ void FIFO(vector<int> refString, int frameSize)
     cout << "Page faults = " << pageFaults << endl;
 }
 
+void LRU(vector<int> refString, int frameSize) {
+    vector<int> frames;
+    unordered_map<int, int> indexRefStr;
+    int pageFaults = 0;
+    int hits = 0;
+    for (int i = 0; i < refString.size(); i++) {
+        cout << refString[i] << "\t";
+        int lru = INT_MAX;
+        int lruIndex=0;
+        //If not found in frames
+        if (vectorSearch(frames, refString[i]) == -1)
+        {
+            for (int j = 0; j < frames.size(); j++)
+                cout << frames[j] << " ";
 
+            pageFaults++;
+            if (frames.size() == frameSize) {
+                //check LRU
+                for (int j = 0; j < frames.size(); j++) {
+                    if (indexRefStr[frames[j]] < lru) {
+                        lru = indexRefStr[frames[j]];
+                        lruIndex = j;
+                    }
+               }
+                frames[lruIndex] = refString[i];
+            }
+            else {
+                frames.push_back(refString[i]);
+            }
+        }
+        else {
+            hits++;
+        }
+        cout << endl;
+        indexRefStr[refString[i]] = i;
+    }
+    cout << "Page Faults: " << pageFaults;
+}
 
 int main()
 {
@@ -78,7 +116,9 @@ int main()
     cout << "\nEnter the frame size: ";
     cin >> frameSize;
 
-    FIFO(refString, frameSize);
+    //FIFO(refString, frameSize);
+    LRU(refString, frameSize);
+
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
