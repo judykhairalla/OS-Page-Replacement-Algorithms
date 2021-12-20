@@ -5,7 +5,42 @@
 #include <vector>
 #include <queue>
 #include <unordered_map>
+#include <list>
 using namespace std;
+
+int vectorSearch(vector<int>, int);
+void FIFO(vector<int>, int);
+void LRU(vector<int>, int);
+void findFarthest(vector<int>&, vector<int>&, vector<int>&, int, int&);
+void OPTIMAL(vector<int>, int);
+
+
+
+int main()
+{
+    vector<int> refString;
+    int elementInput;
+    int frameSize;
+
+    cout << "Input the reference string (stop = -1): \n";
+    while (true){
+        cin >> elementInput;
+        if (elementInput == -1)
+            break;
+        refString.push_back(elementInput);
+    }
+
+    cout << "\nEnter the frame size: ";
+    cin >> frameSize;
+
+    //FIFO(refString, frameSize);
+    //LRU(refString, frameSize);
+    OPTIMAL(refString, frameSize);
+
+
+}
+
+
 
 int vectorSearch(vector<int> vec, int key)
 {
@@ -33,8 +68,6 @@ void FIFO(vector<int> refString, int frameSize)
         if (vectorSearch(frames, refString[i]) == -1)
         {
             pageFaults++;
-            for (int j = 0; j < frames.size(); j++)
-                cout << frames[j] << " ";
 
             // Frames are full
             if (frames.size() == frameSize)
@@ -49,6 +82,9 @@ void FIFO(vector<int> refString, int frameSize)
                 frames.push_back(refString[i]);
                 elementsOrder.push(refString[i]);
             }
+
+            for (int j = 0; j < frames.size(); j++)
+                cout << frames[j] << " ";
         }
         else
         {
@@ -61,14 +97,18 @@ void FIFO(vector<int> refString, int frameSize)
 }
 
 void LRU(vector<int> refString, int frameSize) {
+
     vector<int> frames;
     unordered_map<int, int> indexRefStr;
     int pageFaults = 0;
     int hits = 0;
+
     for (int i = 0; i < refString.size(); i++) {
+
         cout << refString[i] << "\t";
         int lru = INT_MAX;
-        int lruIndex=0;
+        int lruIndex = 0;
+
         //If not found in frames
         if (vectorSearch(frames, refString[i]) == -1)
         {
@@ -83,7 +123,7 @@ void LRU(vector<int> refString, int frameSize) {
                         lru = indexRefStr[frames[j]];
                         lruIndex = j;
                     }
-               }
+                }
                 frames[lruIndex] = refString[i];
             }
             else {
@@ -99,26 +139,94 @@ void LRU(vector<int> refString, int frameSize) {
     cout << "Page Faults: " << pageFaults;
 }
 
-int main()
+void findFarthest(vector<int>& frames, vector<int>& refString, vector<int>& noFutureVisits, int i, int& index)
 {
-    vector<int> refString;
-    int elementInput;
-    int frameSize;
+    int farthest = -1;
+    bool visited;
+    for (int f = 0; f < frames.size(); f++)
+    {
+        visited = false;
+        for (int j = i + 1; j < refString.size(); j++)
+        {
+            if (frames[f] == refString[j])
+            {
+                visited = true;
+                if (j > farthest)
+                {
+                    farthest = j;
+                    index = f;
+                }
+                break;
+            }
+        }
 
-    cout << "Input the reference string (stop = -1): \n";
-    while (true){
-        cin >> elementInput;
-        if (elementInput == -1)
-            break;
-        refString.push_back(elementInput);
+        if (!visited)
+        {
+            noFutureVisits.push_back(frames[f]);
+        }
+    }
+}
+
+void OPTIMAL(vector<int> refString, int frameSize)
+{
+    vector<int> frames;
+    list<int> framesOrder;
+    int pageFaults = 0;
+
+    int hits = 0;
+
+    for (int i = 0; i < refString.size(); i++)
+    {
+        cout << refString[i] << "\t";
+
+        // Page fault
+        if (vectorSearch(frames, refString[i]) == -1)
+        {
+            pageFaults++;
+            if (frames.size() == frameSize)
+            {
+                vector<int> noFutureVisits;
+                int index = -1;
+                findFarthest(frames, refString, noFutureVisits, i, index);
+
+                if (!noFutureVisits.empty())
+                {
+                    for (auto itr = framesOrder.begin(); itr != framesOrder.end(); itr++) {
+
+                        if (vectorSearch(noFutureVisits, *itr) != -1)
+                        {
+                            frames[vectorSearch(frames, *itr)] = refString[i];
+                            framesOrder.remove(*itr);
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    framesOrder.remove(frames[index]);
+                    frames[index] = refString[i];
+                }
+            }
+            else
+            {
+                frames.push_back(refString[i]);
+            }
+
+            framesOrder.push_back(refString[i]);
+
+            for (int j = 0; j < frames.size(); j++)
+                cout << frames[j] << " ";
+
+        }
+        else
+        {
+            hits++;
+        }
+
+        cout << endl;
     }
 
-    cout << "\nEnter the frame size: ";
-    cin >> frameSize;
-
-    //FIFO(refString, frameSize);
-    LRU(refString, frameSize);
-
+    cout << "Page Faults: " << pageFaults;
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
