@@ -6,6 +6,9 @@
 #include <queue>
 #include <unordered_map>
 #include <list>
+#include <iomanip>
+#include <windows.h>
+
 using namespace std;
 
 int vectorSearch(vector<int>, int);
@@ -21,25 +24,48 @@ int main()
     vector<int> refString;
     int elementInput;
     int frameSize;
+    int choice;
 
-    cout << "Input the reference string (stop = -1): \n";
-    while (true){
-        cin >> elementInput;
-        if (elementInput == -1)
+    while(true){
+        cout << "1- FIFO\n2- LRU\n3- Optimal\n";
+        cout << "Please choose the desired Algorithm: ";
+        cin >> choice;
+
+        cout << "Input the reference string (stop = -1): \n";
+        while (true){
+            cin >> elementInput;
+            if (elementInput == -1)
+                break;
+            refString.push_back(elementInput);
+        }
+
+        cout << "\nEnter the frame size: ";
+        cin >> frameSize;
+        system("cls");
+
+        for (int i = 0; i < refString.size(); i++) {
+            cout << setw(3) << refString[i];
+        }
+        cout << endl;
+        switch (choice) {
+        case 1:
+            FIFO(refString, frameSize);
             break;
-        refString.push_back(elementInput);
+        case 2:
+            LRU(refString, frameSize);
+            break;
+        case 3:
+            OPTIMAL(refString, frameSize);
+            break;
+        default:
+            cout << "Invalid Choice";
+        }
+
+        cout << endl << endl;
+        system("pause");
+        system("cls");
     }
-
-    cout << "\nEnter the frame size: ";
-    cin >> frameSize;
-
-    //FIFO(refString, frameSize);
-    //LRU(refString, frameSize);
-    OPTIMAL(refString, frameSize);
-
-
 }
-
 
 
 int vectorSearch(vector<int> vec, int key)
@@ -53,7 +79,6 @@ int vectorSearch(vector<int> vec, int key)
     else
         return -1;
 }
-
 void FIFO(vector<int> refString, int frameSize)
 {
     vector<int>frames;
@@ -63,7 +88,6 @@ void FIFO(vector<int> refString, int frameSize)
 
     for (int i = 0; i < refString.size(); i++)
     {
-        cout << refString[i] << "\t";
         // Page fault
         if (vectorSearch(frames, refString[i]) == -1)
         {
@@ -84,7 +108,7 @@ void FIFO(vector<int> refString, int frameSize)
             }
 
             for (int j = 0; j < frames.size(); j++)
-                cout << frames[j] << " ";
+                cout << setw(3*i) << frames[j] << endl;
         }
         else
         {
