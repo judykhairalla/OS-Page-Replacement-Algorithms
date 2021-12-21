@@ -8,7 +8,6 @@
 #include <list>
 #include <iomanip>
 #include <windows.h>
-
 using namespace std;
 
 int vectorSearch(vector<int>, int);
@@ -21,13 +20,13 @@ void OPTIMAL(vector<int>, int);
 
 int main()
 {
-    vector<int> refString;
-    int elementInput;
-    int frameSize;
-    int choice;
-
     while(true){
-        cout << "1- FIFO\n2- LRU\n3- Optimal\n";
+        vector<int> refString;
+        int elementInput;
+        int frameSize;
+        int choice;
+
+        cout << "1- FIFO\n2- LRU\n3- Optimal\n4-Chaos\n";
         cout << "Please choose the desired Algorithm: ";
         cin >> choice;
 
@@ -42,9 +41,18 @@ int main()
         cout << "\nEnter the frame size: ";
         cin >> frameSize;
         system("cls");
-
+        cout << "REFERENCE STRING: " << endl;
         for (int i = 0; i < refString.size(); i++) {
-            cout << setw(3) << refString[i];
+            cout << refString[i];
+            if (i != refString.size() - 1){
+                cout << setw(4);
+                cout << "|";
+                cout <<setw(4);
+            }
+        }
+        cout << endl;
+        for (int i = 0; i < refString.size() * 8; i++) {
+            cout << "_";
         }
         cout << endl;
         switch (choice) {
@@ -55,6 +63,10 @@ int main()
             LRU(refString, frameSize);
             break;
         case 3:
+            OPTIMAL(refString, frameSize);
+        case 4:
+            FIFO(refString, frameSize);
+            LRU(refString, frameSize);
             OPTIMAL(refString, frameSize);
             break;
         default:
@@ -79,6 +91,17 @@ int vectorSearch(vector<int> vec, int key)
     else
         return -1;
 }
+
+void set_cursor(int x = 0, int y = 0)
+{
+    HANDLE handle;
+    COORD coordinates;
+    handle = GetStdHandle(STD_OUTPUT_HANDLE);
+    coordinates.X = x;
+    coordinates.Y = y;
+    SetConsoleCursorPosition(handle, coordinates);
+}
+
 void FIFO(vector<int> refString, int frameSize)
 {
     vector<int>frames;
@@ -88,6 +111,7 @@ void FIFO(vector<int> refString, int frameSize)
 
     for (int i = 0; i < refString.size(); i++)
     {
+     
         // Page fault
         if (vectorSearch(frames, refString[i]) == -1)
         {
@@ -106,19 +130,24 @@ void FIFO(vector<int> refString, int frameSize)
                 frames.push_back(refString[i]);
                 elementsOrder.push(refString[i]);
             }
-
-            for (int j = 0; j < frames.size(); j++)
-                cout << setw(3*i) << frames[j] << endl;
-        }
+           
+            for (int j = 0; j < frames.size(); j++){
+                    set_cursor(i*8, j+4);
+                    cout  << frames[j];
+                }
+              }
         else
         {
             hits++;
-        }
-        cout << endl;
-    }
-
+        } 
+    }  
+  
+    cout << endl<<endl;
     cout << "Page faults = " << pageFaults << endl;
 }
+
+
+
 
 void LRU(vector<int> refString, int frameSize) {
 
@@ -128,17 +157,13 @@ void LRU(vector<int> refString, int frameSize) {
     int hits = 0;
 
     for (int i = 0; i < refString.size(); i++) {
-
-        cout << refString[i] << "\t";
         int lru = INT_MAX;
         int lruIndex = 0;
 
         //If not found in frames
         if (vectorSearch(frames, refString[i]) == -1)
         {
-            for (int j = 0; j < frames.size(); j++)
-                cout << frames[j] << " ";
-
+ 
             pageFaults++;
             if (frames.size() == frameSize) {
                 //check LRU
@@ -152,6 +177,10 @@ void LRU(vector<int> refString, int frameSize) {
             }
             else {
                 frames.push_back(refString[i]);
+            }
+            for (int j = 0; j < frames.size(); j++) {
+                set_cursor(i * 8, j + 10);
+                cout << frames[j];
             }
         }
         else {
@@ -201,7 +230,7 @@ void OPTIMAL(vector<int> refString, int frameSize)
 
     for (int i = 0; i < refString.size(); i++)
     {
-        cout << refString[i] << "\t";
+       
 
         // Page fault
         if (vectorSearch(frames, refString[i]) == -1)
@@ -238,8 +267,10 @@ void OPTIMAL(vector<int> refString, int frameSize)
 
             framesOrder.push_back(refString[i]);
 
-            for (int j = 0; j < frames.size(); j++)
-                cout << frames[j] << " ";
+            for (int j = 0; j < frames.size(); j++) {
+                set_cursor(i * 8, j + 16);
+                cout << frames[j];
+            }
 
         }
         else
@@ -252,14 +283,3 @@ void OPTIMAL(vector<int> refString, int frameSize)
 
     cout << "Page Faults: " << pageFaults;
 }
-
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
