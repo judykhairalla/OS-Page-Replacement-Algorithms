@@ -45,7 +45,7 @@ int main()
         int choice;
         lineSpacing = 4;
         cout << "\nMENU:\n";
-        cout << "1- FIFO\n2- LRU\n3- Optimal\n4- All algorithms\n\n";
+        cout << "1- FIFO\n2- LRU\n3- Optimal\n4- All Algorithms\n\n";
 
 
         //Take Algorithm Choice Input until it's valid
@@ -172,28 +172,29 @@ void FIFO(vector<int> refString, int frameSize)
     int pageFaults = 0;
     int hits = 0;
 
+    //Iterate through each element in Reference String
     for (int i = 0; i < refString.size(); i++)
     {
-
-        // Page fault
+        // Check if the current refString Element is in Frames, if not then a Page fault occurs
         if (vectorSearch(frames, refString[i]) == -1)
         {
             pageFaults++;
 
-            // Frames are full
+            // If Frames are full, we will replace a frame
             if (frames.size() == frameSize)
             {
                 int toPop = elementsOrder.front();
-                frames[vectorSearch(frames, toPop)] = refString[i];
-                elementsOrder.pop();
+                frames[vectorSearch(frames, toPop)] = refString[i]; //get the index of the frame to be replaced and update its value
+                elementsOrder.pop(); 
                 elementsOrder.push(refString[i]);
             }
+            //If Frames aren't full then push the current element into frames and elementsOrder queue
             else
             {
                 frames.push_back(refString[i]);
                 elementsOrder.push(refString[i]);
             }
-
+            
             printFrames(i, frames);
         }
         else
@@ -211,12 +212,12 @@ void FIFO(vector<int> refString, int frameSize)
 
 
 void LRU(vector<int> refString, int frameSize) {
-
     vector<int> frames;
     unordered_map<int, int> indexRefStr;
     int pageFaults = 0;
     int hits = 0;
 
+    // Traverse the reference string, find the Least Recently used element to substitute with the current one 
     for (int i = 0; i < refString.size(); i++) {
         int lru = INT_MAX;
         int lruIndex = 0;
@@ -224,12 +225,16 @@ void LRU(vector<int> refString, int frameSize) {
         //If not found in frames
         if (vectorSearch(frames, refString[i]) == -1)
         {
-
             pageFaults++;
+            //If frames are full, replace frame
             if (frames.size() == frameSize) {
-                //check LRU
+                //check LRU element to be replaced
                 for (int j = 0; j < frames.size(); j++) {
-                    if (indexRefStr[frames[j]] < lru) {
+                    //We traverse the frames and check which frames hasn't been called 
+                    //For the longest time using its index in the Reference String (indexRefStr)
+                    //We store the refString index of frames[j] if it's less than the current lru value.
+                    //After the loop ends, we will have the LRU index 
+                    if (indexRefStr[frames[j]] < lru) { 
                         lru = indexRefStr[frames[j]];
                         lruIndex = j;
                     }
@@ -244,7 +249,6 @@ void LRU(vector<int> refString, int frameSize) {
         else {
             hits++;
         }
-
         indexRefStr[refString[i]] = i;
     }
     
