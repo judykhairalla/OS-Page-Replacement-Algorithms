@@ -37,6 +37,7 @@ int main()
     setConsoleSize();
     printTitle();
   
+    // An infinite loop to keep getting back to the main menu and test new algorithms or reference strings
     while(true){
         vector<int> refString;
         int elementInput;
@@ -52,7 +53,7 @@ int main()
             inputValid = true;
             cout << "Choose the desired Algorithm: ";
             cin >> choice;
-            if (!cin || choice>4) {
+            if (!cin || choice > 4) {
                 cout << "Invalid Input" << endl;
                 inputValid = false;
                 cin.clear();
@@ -67,7 +68,8 @@ int main()
             inputValid = true;
             refString.clear();
             cout << "\nInput the reference string (stop = -1): \n";
-            //Accepting Reference String Eelements until user inputs -1
+
+            //Accepting Reference String Elements until user inputs -1
             while (true){
                 cin >> elementInput;
                 if (!cin) {
@@ -76,10 +78,13 @@ int main()
                     cin.clear();
                     cin.ignore();
                 }
+
                 if (elementInput == -1)
                     break;
+
                 refString.push_back(elementInput);
             }
+
         } while (inputValid == false);
 
 
@@ -88,63 +93,62 @@ int main()
             inputValid = true;
             cout << "\nEnter the frame size: ";
             cin >> frameSize;
+
             if (!cin) {
                 cout << "Invalid Input" << endl;
                 inputValid = false;
                 cin.clear();
                 cin.ignore();
             }
+
         } while (inputValid == false);
       
 
         system("cls");
+
+        // According to the user's choice, apply the desired algorithm(s)
+        // Each time, print the algorithm's name followed by the reference string 
+        // before printing the frames at their different states
         switch (choice) {
 
+        // FIFO 
         case 1:
-            changeColor(11);
             printAlgorithmName("FIFO", refString);
-            changeColor(15);
             printRefString(refString);
             FIFO(refString, frameSize);
             break;
 
+        // LRU 
         case 2:
-            changeColor(11);
             printAlgorithmName("LRU", refString);
-            changeColor(15);
             printRefString(refString);
             LRU(refString, frameSize);
             break;
 
+        // Optimal 
         case 3:
-            changeColor(11);
             printAlgorithmName("OPTIMAL", refString);
-            changeColor(15);
             printRefString(refString);
             OPTIMAL(refString, frameSize);
             break;
 
+        // All Algorithms
         case 4:
-            changeColor(11);
+            // FIFO
             printAlgorithmName("FIFO", refString);
-            changeColor(15);
             printRefString(refString);
             FIFO(refString, frameSize);
             
-            
+            // LRU, Adjust the line spacing to start printing below the FIFO algorithm
             adjustLineSpacing(frameSize, refString, 1);
-            changeColor(11);
             printAlgorithmName("LRU", refString);
-            changeColor(15);
             printRefString(refString);
             lineSpacing += 4;
             LRU(refString, frameSize);
 
-            
+            // Optimal, Adjust the line spacing to start printing below the LRU algorithm
             adjustLineSpacing(frameSize, refString, 2);
-            changeColor(11);
             printAlgorithmName("OPTIMAL", refString);
-            changeColor(15);
             printRefString(refString);
             lineSpacing += 4;
             OPTIMAL(refString, frameSize);
@@ -260,20 +264,28 @@ void OPTIMAL(vector<int> refString, int frameSize)
     int pageFaults = 0;
     int hits = 0;
 
+    // Traverse the reference string
     for (int i = 0; i < refString.size(); i++)
     {
-        // Page fault
+        // If the current element doesn't exist in the frames, a page fault occurs
         if (vectorSearch(frames, refString[i]) == -1)
         {
             pageFaults++;
+
+            // if the frames are full, find the farthest element to substitute with the current one
             if (frames.size() == frameSize)
             {
                 vector<int> noFutureVisits;
                 int index = -1;
                 findFarthest(frames, refString, noFutureVisits, i, index);
 
+                // If there are elements that won't be visited in the future, apply the FIFO algorithm
+                // to select the element to be removed
                 if (!noFutureVisits.empty())
                 {
+                    // A linked list (framesOrder) maintains the order of input pages in the frames.
+                    // The front page is the page that was first inserted in the frames,
+                    // if it was also never visited, then it is the page to be removed.
                     for (auto itr = framesOrder.begin(); itr != framesOrder.end(); itr++) {
 
                         if (vectorSearch(noFutureVisits, *itr) != -1)
@@ -286,12 +298,14 @@ void OPTIMAL(vector<int> refString, int frameSize)
                 }
                 else
                 {
+                    // Remove the farthest page and replace it with the new page from the reference string
                     framesOrder.remove(frames[index]);
                     frames[index] = refString[i];
                 }
             }
             else
             {
+                // If there is room for more pages, insert the current page to the frames
                 frames.push_back(refString[i]);
             }
 
@@ -318,12 +332,16 @@ void OPTIMAL(vector<int> refString, int frameSize)
 //----------------------------------------- HELPING FUNCTIONS -----------------------------------------
 int vectorSearch(vector<int> vec, int key)
 {
+    // Iterate through the input vector
     vector<int>::iterator iterator;
     iterator = find(vec.begin(), vec.end(), key);
+
+    // If the key element is found, return its index
     if (iterator != vec.end())
     {
         return iterator - vec.begin();
     }
+    // If the key element was not found, return -1 
     else
         return -1;
 }
@@ -332,9 +350,14 @@ void findFarthest(vector<int>& frames, vector<int>& refString, vector<int>& noFu
 {
     int farthest = -1;
     bool visited;
+
+    // Traverse the frames 
     for (int f = 0; f < frames.size(); f++)
     {
         visited = false;
+        // If an element from the frames is repeated in the future pages,
+        // check whether its occurence is the farthest and accordingly update
+        // the variable "farthest" and update its index
         for (int j = i + 1; j < refString.size(); j++)
         {
             if (frames[f] == refString[j])
@@ -349,6 +372,7 @@ void findFarthest(vector<int>& frames, vector<int>& refString, vector<int>& noFu
             }
         }
 
+        // If the element will never be visited in the future, insert it to the respective vector
         if (!visited)
         {
             noFutureVisits.push_back(frames[f]);
@@ -358,6 +382,8 @@ void findFarthest(vector<int>& frames, vector<int>& refString, vector<int>& noFu
 
 void printFrames(int i, vector<int> frames)
 {
+    // Print the frames vector after the previous frames in the x axis (x = i*8)
+    // and below the previous algorithms and frames (y= j + lineSpacing)
     for (int j = 0; j < frames.size(); j++) {
         set_cursor(i * 8, j + lineSpacing);
         cout << frames[j];
@@ -365,55 +391,11 @@ void printFrames(int i, vector<int> frames)
 }
 
 //------------------------------------------- LAYOUT FUNCTIONS -------------------------------------------
-void printTitle() {
-    cout << "  ____       _       ____   _____     ____    _____   ____    _          _       ____   _____   __  __   _____   _   _   _____ \n";
-    cout << " |  _ \\     / \\     / ___| | ____|   |  _ \\  | ____| |  _ \\  | |        / \\     / ___| | ____| |  \\/  | | ____| | \\ | | |_   _|\n";
-    cout << " | |_) |   / _ \\   | |  _  |  _|     | |_) | |  _|   | |_) | | |       / _ \\   | |     |  _|   | |\\/| | |  _|   |  \\| |   | |  \n";
-    cout << " |  __/   / ___ \\  | |_| | | |___    |  _ <  | |___  |  __/  | |___   / ___ \\  | |___  | |___  | |  | | | |___  | |\\  |   | |  \n";
-    cout << " |_|     /_/   \\_\\  \\____| |_____|   |_| \\_\\ |_____| |_|     |_____| /_/   \\_\\  \\____| |_____| |_|  |_| |_____| |_| \\_|   |_|  \n";
-}
 void setConsoleSize() {
     HWND console = GetConsoleWindow();
     RECT r;
     GetWindowRect(console, &r);
     MoveWindow(console, r.left, r.top, 1200, 800, TRUE);
-}
-
-void adjustLineSpacing(int frameSize, vector<int> refString, int factor)
-{
-    lineSpacing = (frameSize * factor) + (10 * factor);
-    set_cursor(0, lineSpacing);
-}
-
-void printRefString(vector<int> refString)
-{
-    for (int i = 0; i < refString.size(); i++) {
-        cout << refString[i];
-        if (i != refString.size() - 1) {
-            cout << setw(4);
-            cout << "|";
-            cout << setw(4);
-        }
-    }
-    cout << endl;
-    for (int i = 0; i < refString.size() * 8; i++) {
-        cout << "_";
-    }
-    cout << endl;
-}
-
-
-void printAlgorithmName(string algo, vector<int> refString)
-{
-    for (int i = 0; i < refString.size() * 8 / 2; i++)
-        cout << "-";
-
-    cout << " " << algo << " ";
-
-    for (int i = 0; i < refString.size() * 8 / 2; i++)
-        cout << "-";
-    
-    cout << endl;
 }
 
 void set_cursor(int x = 0, int y = 0)
@@ -435,3 +417,56 @@ void changeColor(int color)
     SetConsoleTextAttribute(hConsole, color);
 
 }
+
+void adjustLineSpacing(int frameSize, vector<int> refString, int factor)
+{
+    lineSpacing = (frameSize * factor) + (10 * factor);
+    set_cursor(0, lineSpacing);
+}
+
+void printTitle() {
+    cout << "  ____       _       ____   _____     ____    _____   ____    _          _       ____   _____   __  __   _____   _   _   _____ \n";
+    cout << " |  _ \\     / \\     / ___| | ____|   |  _ \\  | ____| |  _ \\  | |        / \\     / ___| | ____| |  \\/  | | ____| | \\ | | |_   _|\n";
+    cout << " | |_) |   / _ \\   | |  _  |  _|     | |_) | |  _|   | |_) | | |       / _ \\   | |     |  _|   | |\\/| | |  _|   |  \\| |   | |  \n";
+    cout << " |  __/   / ___ \\  | |_| | | |___    |  _ <  | |___  |  __/  | |___   / ___ \\  | |___  | |___  | |  | | | |___  | |\\  |   | |  \n";
+    cout << " |_|     /_/   \\_\\  \\____| |_____|   |_| \\_\\ |_____| |_|     |_____| /_/   \\_\\  \\____| |_____| |_|  |_| |_____| |_| \\_|   |_|  \n";
+}
+
+
+void printRefString(vector<int> refString)
+{
+    for (int i = 0; i < refString.size(); i++) {
+        cout << refString[i];
+        if (i != refString.size() - 1) {
+            cout << setw(4);
+            cout << "|";
+            cout << setw(4);
+        }
+    }
+    cout << endl;
+    for (int i = 0; i < refString.size() * 8; i++) {
+        cout << "_";
+    }
+    cout << endl;
+}
+
+
+void printAlgorithmName(string algo, vector<int> refString)
+{
+    changeColor(11);
+
+    for (int i = 0; i < refString.size() * 8 / 2; i++)
+        cout << "-";
+
+    cout << " " << algo << " ";
+
+    for (int i = 0; i < refString.size() * 8 / 2; i++)
+        cout << "-";
+    
+    cout << endl;
+
+    changeColor(15);
+}
+
+
+
