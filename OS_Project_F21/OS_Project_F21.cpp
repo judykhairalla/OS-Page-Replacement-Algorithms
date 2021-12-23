@@ -1,4 +1,4 @@
-// OS_Project_F21.cpp : This file contains the 'main' function. Program execution begins and ends there.
+﻿// OS_Project_F21.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
 
 #include <iostream>
@@ -19,42 +19,85 @@ int vectorSearch(vector<int>, int);
 void findFarthest(vector<int>&, vector<int>&, vector<int>&, int, int&);
 void printFrames(int, vector<int>);
 
+void setConsoleSize();
+void printTitle();
 void printRefString(vector<int> refString);
 void adjustLineSpacing(int, vector<int>, int);
 void set_cursor(int, int);
 void printAlgorithmName(string, vector<int>);
 void changeColor(int);
 
+
 int lineSpacing = 4;
 
 
 int main()
 {
+    bool inputValid = true;
+    setConsoleSize();
+    printTitle();
+  
     while(true){
-
         vector<int> refString;
         int elementInput;
         int frameSize;
         int choice;
         lineSpacing = 4;
+        cout << "\nMENU:\n";
+        cout << "1- FIFO\n2- LRU\n3- Optimal\n4- All algorithms\n\n";
 
-        cout << "1- FIFO\n2- LRU\n3- Optimal\n4- All algorithms\n";
-        cout << "Please choose the desired Algorithm: ";
-        cin >> choice;
 
-        cout << "Input the reference string (stop = -1): \n";
-        while (true){
-            cin >> elementInput;
-            if (elementInput == -1)
-                break;
-            refString.push_back(elementInput);
+        //Take Algorithm Choice Input until it's valid
+        do{
+            inputValid = true;
+            cout << "Choose the desired Algorithm: ";
+            cin >> choice;
+            if (!cin || choice>4) {
+                cout << "Invalid Input" << endl;
+                inputValid = false;
+                cin.clear();
+                cin.ignore();
+            }
         }
+        while(inputValid==false);
 
-        cout << "\nEnter the frame size: ";
-        cin >> frameSize;
+
+        //Take Reference String Input until it's valid
+        do{
+            inputValid = true;
+            refString.clear();
+            cout << "\nInput the reference string (stop = -1): \n";
+            //Accepting Reference String Eelements until user inputs -1
+            while (true){
+                cin >> elementInput;
+                if (!cin) {
+                    cout << "Invalid Input" << endl;
+                    inputValid = false;
+                    cin.clear();
+                    cin.ignore();
+                }
+                if (elementInput == -1)
+                    break;
+                refString.push_back(elementInput);
+            }
+        } while (inputValid == false);
+
+
+        //Take Frame Size input until it's valid
+        do {
+            inputValid = true;
+            cout << "\nEnter the frame size: ";
+            cin >> frameSize;
+            if (!cin) {
+                cout << "Invalid Input" << endl;
+                inputValid = false;
+                cin.clear();
+                cin.ignore();
+            }
+        } while (inputValid == false);
+      
+
         system("cls");
-
-        
         switch (choice) {
 
         case 1:
@@ -322,6 +365,20 @@ void printFrames(int i, vector<int> frames)
 }
 
 //------------------------------------------- LAYOUT FUNCTIONS -------------------------------------------
+void printTitle() {
+    cout << "  ____       _       ____   _____     ____    _____   ____    _          _       ____   _____   __  __   _____   _   _   _____ \n";
+    cout << " |  _ \\     / \\     / ___| | ____|   |  _ \\  | ____| |  _ \\  | |        / \\     / ___| | ____| |  \\/  | | ____| | \\ | | |_   _|\n";
+    cout << " | |_) |   / _ \\   | |  _  |  _|     | |_) | |  _|   | |_) | | |       / _ \\   | |     |  _|   | |\\/| | |  _|   |  \\| |   | |  \n";
+    cout << " |  __/   / ___ \\  | |_| | | |___    |  _ <  | |___  |  __/  | |___   / ___ \\  | |___  | |___  | |  | | | |___  | |\\  |   | |  \n";
+    cout << " |_|     /_/   \\_\\  \\____| |_____|   |_| \\_\\ |_____| |_|     |_____| /_/   \\_\\  \\____| |_____| |_|  |_| |_____| |_| \\_|   |_|  \n";
+}
+void setConsoleSize() {
+    HWND console = GetConsoleWindow();
+    RECT r;
+    GetWindowRect(console, &r);
+    MoveWindow(console, r.left, r.top, 1200, 800, TRUE);
+}
+
 void adjustLineSpacing(int frameSize, vector<int> refString, int factor)
 {
     lineSpacing = (frameSize * factor) + (10 * factor);
@@ -357,7 +414,6 @@ void printAlgorithmName(string algo, vector<int> refString)
         cout << "-";
     
     cout << endl;
-
 }
 
 void set_cursor(int x = 0, int y = 0)
