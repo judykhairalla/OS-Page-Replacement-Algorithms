@@ -1,5 +1,12 @@
-﻿// OS_Project_F21.cpp : This file contains the 'main' function. Program execution begins and ends there.
+﻿//--------------------------------------------------------------------------------------------------
+// 
+// CSC 350 - OS II Project: Page Replacement Algorithms
+// 
+// Credits:
+// Steven Albert Farahat 2019/01611
+// Judy Wagdy Fahmy Khairalla 2019/02181
 //
+//--------------------------------------------------------------------------------------------------
 
 #include <iostream>
 #include <stdlib.h>
