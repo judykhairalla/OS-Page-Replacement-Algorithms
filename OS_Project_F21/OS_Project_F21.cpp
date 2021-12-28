@@ -400,7 +400,7 @@ void setConsoleSize() {
     HWND console = GetConsoleWindow();
     RECT r;
     GetWindowRect(console, &r);
-    MoveWindow(console, r.left, r.top, 1200, 800, TRUE);
+    MoveWindow(console, r.left, r.top, 1400, 800, TRUE);
 }
 
 void set_cursor(int x = 0, int y = 0)
